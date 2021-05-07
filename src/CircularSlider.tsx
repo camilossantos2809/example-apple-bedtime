@@ -45,11 +45,15 @@ const CircularSlider = ({ start, end }: CircularProps) => {
   return (
     <View>
       <Svg width={SIZE} height={SIZE}>
-        <AnimatedPath
-          animatedProps={animatedProps}
-          stroke="cyan"
-          strokeWidth={STROKE}
-        />
+        <Defs>
+          <Mask id="mask">
+            <AnimatedPath
+              animatedProps={animatedProps}
+              stroke="cyan"
+              strokeWidth={STROKE}
+            />
+          </Mask>
+        </Defs>
         <Quadrant />
         <Cursor pos={startPos} />
         <Cursor pos={endPos} />

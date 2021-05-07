@@ -16,10 +16,52 @@ enum Region {
   MAIN,
 }
 
-interface GestureProps {}
+interface GestureProps {
+  start: Animated.SharedValue<number>;
+  end: Animated.SharedValue<number>;
+  startPos: Animated.SharedValue<Vector>;
+  endPos: Animated.SharedValue<Vector>;
+}
 
-const Gesture = ({}: GestureProps) => {
-  return null;
+const Gesture = ({ end, endPos, start, startPos }: GestureProps) => {
+  const onGestureEvent = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    { offset: number; region: Region }
+  >({
+    onStart: ({ x, y }, ctx) => {
+      const value = { x, y };
+      if (containedInSquare(value, startPos.value, STROKE)) {
+        ctx.region = Region.START;
+        ctx.offset = start.value;
+      } else if (containedInSquare(value, endPos.value, STROKE)) {
+        ctx.region = Region.END;
+        ctx.offset = end.value;
+      } else {
+        const { theta } = canvas2Polar(value, CENTER);
+        ctx.region = Region.MAIN;
+        ctx.offset = theta;
+      }
+    },
+    onActive: ({ x, y }, ctx) => {
+      const value = { x, y };
+      const { theta } = canvas2Polar(value, CENTER);
+      const delta = theta - ctx.offset;
+      ctx.offset = theta;
+      if (ctx.region === Region.START) {
+        start.value = normalize(start.value + delta);
+      } else if (ctx.region === Region.END) {
+        end.value = normalize(end.value + delta);
+      } else {
+        start.value = normalize(start.value + delta);
+        end.value = normalize(end.value + delta);
+      }
+    },
+  });
+  return (
+    <PanGestureHandler onGestureEvent={onGestureEvent}>
+      <Animated.View style={StyleSheet.absoluteFill} />
+    </PanGestureHandler>
+  );
 };
 
 export default Gesture;

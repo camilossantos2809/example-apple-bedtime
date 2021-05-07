@@ -37,8 +37,11 @@ const CircularSlider = ({ start, end }: CircularProps) => {
   );
 
   const animatedProps = useAnimatedProps(() => {
+    const duration = absoluteDuration(start.value, end.value);
     return {
-      d: `M ${startPos.value.x} ${startPos.value.y} A ${R} ${R} 0 1 0 ${endPos.value.x} ${endPos.value.y}`,
+      d: `M ${startPos.value.x} ${startPos.value.y} A ${R} ${R} 0 ${
+        duration < PI ? "0" : "1"
+      } 0 ${endPos.value.x} ${endPos.value.y}`,
     };
   });
 
@@ -58,6 +61,7 @@ const CircularSlider = ({ start, end }: CircularProps) => {
         <Cursor pos={startPos} />
         <Cursor pos={endPos} />
       </Svg>
+      <Gesture start={start} end={end} startPos={startPos} endPos={endPos} />
     </View>
   );
 };

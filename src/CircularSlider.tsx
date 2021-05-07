@@ -28,7 +28,34 @@ interface CircularProps {
 }
 
 const CircularSlider = ({ start, end }: CircularProps) => {
-  return <View />;
+  // Cartesian representation
+  const startPos = useDerivedValue(() =>
+    polar2Canvas({ theta: start.value, radius: R }, CENTER)
+  );
+  const endPos = useDerivedValue(() =>
+    polar2Canvas({ theta: end.value, radius: R }, CENTER)
+  );
+
+  const animatedProps = useAnimatedProps(() => {
+    return {
+      d: `M ${startPos.value.x} ${startPos.value.y} A ${R} ${R} 0 1 0 ${endPos.value.x} ${endPos.value.y}`,
+    };
+  });
+
+  return (
+    <View>
+      <Svg width={SIZE} height={SIZE}>
+        <AnimatedPath
+          animatedProps={animatedProps}
+          stroke="cyan"
+          strokeWidth={STROKE}
+        />
+        <Quadrant />
+        <Cursor pos={startPos} />
+        <Cursor pos={endPos} />
+      </Svg>
+    </View>
+  );
 };
 
 export default CircularSlider;
